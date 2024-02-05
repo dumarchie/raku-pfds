@@ -1,0 +1,10 @@
+# precompiled files
+.precomp
+lib/.precomp
+
+# IntelliJ project settings
+.idea
+*.iml
+
+# distributions
+sdist

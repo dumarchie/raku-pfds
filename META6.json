@@ -1,0 +1,19 @@
+{
+  "name": "PFDS",
+  "description": "Purely Functional Data Structures",
+  "version": "0.1",
+  "perl": "6.*",
+  "authors": [
+    "Peter du Marchie van Voorthuysen"
+  ],
+  "auth": "zef:dumarchie",
+  "depends": [],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "PFDS::Series": "lib/PFDS/Series.rakumod"
+  },
+  "resources": [],
+  "license": "Artistic-2.0",
+  "source-url": "git://github.com/dumarchie/raku-pfds.git"
+}
