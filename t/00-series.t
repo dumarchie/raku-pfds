@@ -4,7 +4,7 @@ use Test;
 use lib 'lib';
 use PFDS::Series;
 
-subtest 'series(**@values)', {
+subtest 'series', {
     subtest 'empty series', {
         $_ := series;
         isa-ok $_, PFDS::Series, 'series() returns a PFDS::Series';
@@ -46,6 +46,31 @@ subtest 'series(**@values)', {
 
     # Check that a Slip slips
     cmp-ok series(Empty), 'eqv', series, 'series(Empty) returns the empty series';
+}
+
+subtest 'infix ++', {
+    subtest 'series(1) ++ series()', {
+        $_ := series(1) ++ series();
+        isa-ok $_, PFDS::Series, 'series(1) ++ series() returns a PFDS::Series';
+        cmp-ok .Bool, '=:=', True, '.Bool returns True';
+        cmp-ok .head, '=:=', 1, '.head returns value 1';
+        subtest '.skip', {
+            isa-ok $_, PFDS::Series, 'the result is a PFDS::Series';
+            cmp-ok .Bool, '=:=', False, '.Bool returns False';
+            cmp-ok .head, '=:=', Nil, '.head returns Nil';
+            cmp-ok .skip, '=:=', series(), '.skip returns series()';
+        } given .skip;
+    }
+
+    subtest 'series(1) ++ series(2, 3)', {
+        $_ := series(1) ++ series(2, 3);
+        isa-ok $_, PFDS::Series, 'series(1) ++ series(2, 3) returns a PFDS::Series';
+        subtest '.skip', {
+            isa-ok $_, PFDS::Series, 'the result is a PFDS::Series';
+            cmp-ok .(), 'eqv', series(2, 3),
+              '.() returns the equivalent of series(2, 3)';
+        } given .skip;
+    }
 }
 
 done-testing;
