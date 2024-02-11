@@ -10,6 +10,7 @@ subtest 'series', {
         isa-ok $_, PFDS::Series, 'series() returns a PFDS::Series';
         cmp-ok .Bool, '=:=', False, '.Bool returns False';
         cmp-ok .head, '=:=', Nil, '.head returns Nil';
+        cmp-ok .list, 'eqv', (), '.list returns no values';
         cmp-ok .skip, '=:=', $_, '.skip returns the invocant';
     }
 
@@ -27,21 +28,12 @@ subtest 'series', {
         cmp-ok .skip, 'eqv', series, '.skip returns the empty series';
     }
 
-    subtest 'series($item, 2)', {
-        my \value = Mu.new;
-        my $item  = value;
-        $_ := series($item, 2);
-        isa-ok $_, PFDS::Series, 'series($item, 2) returns a PFDS::Series';
-
-        $item = Mu.new; # to check that the .head is bound to the bare value
-        cmp-ok .head, '=:=', value,
-          '.head returns the value stored in $item when series($item) was called';
-
-        subtest '.skip', {
-            isa-ok $_, PFDS::Series, 'the result is a PFDS::Series';
-            cmp-ok .head, '=:=', 2, '.head returns value 2';
-            cmp-ok .skip, '=:=', PFDS::Series, '.skip returns the empty series';
-        } given .skip;
+    subtest 'series(1, 2)', {
+        $_ := series(1, 2);
+        isa-ok $_, PFDS::Series, 'series(1, 2) returns a PFDS::Series';
+        cmp-ok .head, '=:=', 1, '.head returns the value 1';
+        cmp-ok .list, 'eqv', (1, 2), '.list returns values 1, 2';
+        cmp-ok .skip, 'eqv', series(2), '.skip returns series(2)';
     }
 
     # Check that a Slip slips
@@ -49,28 +41,13 @@ subtest 'series', {
 }
 
 subtest 'infix ++', {
-    subtest 'series(1) ++ series()', {
-        $_ := series(1) ++ series();
-        isa-ok $_, PFDS::Series, 'series(1) ++ series() returns a PFDS::Series';
-        cmp-ok .Bool, '=:=', True, '.Bool returns True';
-        cmp-ok .head, '=:=', 1, '.head returns value 1';
-        subtest '.skip', {
-            isa-ok $_, PFDS::Series, 'the result is a PFDS::Series';
-            cmp-ok .Bool, '=:=', False, '.Bool returns False';
-            cmp-ok .head, '=:=', Nil, '.head returns Nil';
-            cmp-ok .skip, '=:=', series(), '.skip returns series()';
-        } given .skip;
-    }
-
-    subtest 'series(1) ++ series(2, 3)', {
-        $_ := series(1) ++ series(2, 3);
-        isa-ok $_, PFDS::Series, 'series(1) ++ series(2, 3) returns a PFDS::Series';
-        subtest '.skip', {
-            isa-ok $_, PFDS::Series, 'the result is a PFDS::Series';
-            cmp-ok .(), 'eqv', series(2, 3),
-              '.() returns the equivalent of series(2, 3)';
-        } given .skip;
-    }
+    my \t = series(2, 3);
+    $_ := series(1) ++ t;
+    isa-ok $_, PFDS::Series, "series(1) ++ t returns a PFDS::Series";
+    cmp-ok .Bool, '=:=', True, '.Bool returns True';
+    cmp-ok .head, '=:=', 1, '.head returns the value 1';
+    cmp-ok .list, 'eqv', (1, 2, 3), '.list returns values 1, 2, 3';
+    cmp-ok .skip, 'eqv', series() ++ t, '.skip returns a suspended t';
 }
 
 done-testing;

@@ -4,13 +4,29 @@ use v6.d;
 my &cons; # protected Node constructor
 my &susp; # protected Stream constructor
 
-role PFDS::Series {
+role PFDS::Series does Iterable {
     # If forced, return the type object representing the empty series
     method CALL-ME() { PFDS::Series }
 
     # Properties of the empty series
     multi method head() {}
     multi method skip() { PFDS::Series }
+
+    # Provide iterable methods
+    method iterator() {
+        my class :: does Iterator {
+            has $.series;
+            method pull-one() {
+                if my \node = $!series() {
+                    $!series := node.skip;
+                    node.head;
+                }
+                else { IterationEnd }
+            }
+        }.new(series => self);
+    }
+
+    method list() { self.Seq.list }
 }
 
 my class Node does PFDS::Series {
@@ -78,7 +94,7 @@ sub link(@values) {
 }
 
 sub infix:<++>(PFDS::Series \s, PFDS::Series \t) is export {
-    susp { (my \n := s.()) ?? cons(n.head, n.skip ++ t) !! t.() };
+    susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
 }
 
 =begin pod
@@ -89,7 +105,7 @@ PFDS::Series - Purely functional linked lists
 
 =head1 DESCRIPTION
 
-    role PFDS::Series {}
+    role PFDS::Series does Iterable {}
 
 The B<series> provided by C<PFDS::Series> are purely functional B<linked lists>.
 A proper series is a recursive data structure that links an immutable I<value>,
@@ -125,6 +141,20 @@ by the values of C<t>.
     multi method head()
 
 Returns the first value of the series, or C<Nil> if the series is empty.
+
+=head2 method iterator
+
+    method iterator()
+
+Returns an L<C<Iterator>|https://docs.raku.org/type/Iterator> over the values of
+the series.
+
+=head2 method list
+
+    method list()
+
+Returns the values of the series as a lazy list based on the
+L<C<.iterator>|#method_iterator>.
 
 =head2 method skip
 
