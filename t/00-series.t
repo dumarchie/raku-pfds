@@ -50,4 +50,21 @@ subtest 'infix ++', {
     cmp-ok .skip, 'eqv', series() ++ t, '.skip returns a suspended t';
 }
 
+subtest '.skip(n)', {
+    my \t = series(2, 3);
+    $_ := series(1) ++ t;
+
+    my \n = my $var = (-1, .9).pick;
+    cmp-ok .skip(n), '=:=', $_, '.skip(n) returns the invocant if n.Int <= 0';
+    cmp-ok .skip(1), 'eqv', series() ++ t,
+      '.skip(1) returns the series following the first value of the invocant';
+
+    cmp-ok .skip(2), 'eqv', series(3),
+      '.skip(2) returns the series following the first two values';
+
+    $var = (3, 4).pick;
+    cmp-ok .skip(n), 'eqv', series(),
+      '.skip(n) returns the empty series if n >= the number of values';
+}
+
 done-testing;

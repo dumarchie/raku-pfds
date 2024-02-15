@@ -8,11 +8,21 @@ role PFDS::Series does Iterable {
     # If forced, return the type object representing the empty series
     method CALL-ME() { PFDS::Series }
 
-    # Properties of the empty series
+    # Destructuring
     multi method head() {}
-    multi method skip() { PFDS::Series }
 
-    # Provide iterable methods
+    multi method skip() { PFDS::Series }
+    multi method skip(Int() \n) {
+        my $series := self;
+        my int $n = n;
+        while $n-- > 0 {
+            my \node = $series() or last;
+            $series := node.skip;
+        }
+        $series;
+    }
+
+    # Iterable methods
     method iterator() {
         my class :: does Iterator {
             has $.series;
@@ -101,21 +111,21 @@ sub infix:<++>(PFDS::Series \s, PFDS::Series \t) is export {
 
 =head1 NAME
 
-PFDS::Series - Purely functional linked lists
+PFDS::Series - Purely functional, potentially lazy linked lists
 
 =head1 DESCRIPTION
 
     role PFDS::Series does Iterable {}
 
-The B<series> provided by C<PFDS::Series> are purely functional B<linked lists>.
-A proper series is a recursive data structure that links an immutable I<value>,
-the C<.head> of the series, to another series with the remaining values. The
-last value of the series is linked to the empty series, which is the only series
-that evaluates to C<False> in Boolean context.
+C<PFDS::Series> provides B<series>, strongly immutable B<linked lists> that
+may be lazily evaluated. A proper series is a recursive data structure that
+links an immutable I<value>, the C<.head> of the series, to a series with the
+rest of the values. The last value of a series is linked to the empty series,
+the only series that evaluates to C<False> in Boolean context.
 
-A series may be lazily evaluated, in which case it's called a B<stream>. Calling
-C<.Bool>, C<.head> or C<.skip> on a stream reifies its head. Calling C<.skip> on
-a stream may return another stream or a regular series.
+Lazily evaluated series are called B<streams>. The head of a stream is reified
+by calling C<.Bool>, C<.head> or C<.skip>. Calling C<.skip> on a stream may
+return another stream or a regular series.
 
 =head1 EXPORTS
 
@@ -131,8 +141,8 @@ Constructs a series of decontainerized C<@values>.
 
     sub infix:<++>(PFDS::Series \s, PFDS::Series \t)
 
-Concatenates the two series into a stream containing the values of C<s> followed
-by the values of C<t>.
+Concatenates the two series into a stream containing the values of C<s>
+followed by the values of C<t>.
 
 =head1 METHODS
 
@@ -146,8 +156,8 @@ Returns the first value of the series, or C<Nil> if the series is empty.
 
     method iterator()
 
-Returns an L<C<Iterator>|https://docs.raku.org/type/Iterator> over the values of
-the series.
+Returns an L<C<Iterator>|https://docs.raku.org/type/Iterator> over the values
+of the series.
 
 =head2 method list
 
@@ -159,7 +169,9 @@ L<C<.iterator>|#method_iterator>.
 =head2 method skip
 
     multi method skip()
+    multi method skip(Int() \n)
 
-Returns the series that remains after discarding the first value of the series.
+Returns the series that remains after discarding the first value or first C<n>
+values of the series. Negative values of C<n> count as 0.
 
 =end pod
