@@ -66,11 +66,12 @@ my class Stream does PFDS::Series {
     method !SET-SELF($!state) { self }
 
     # Protected constructor
+    my \todo = Mu.new;
     &susp = sub (&series) {
-        my $state = &series;
+        my $state = todo;
         ::?CLASS.CREATE!SET-SELF({
-            my \seen = cas $state, &series, my \new = series;
-            seen === &series ?? new !! seen;
+            my \seen = cas $state, todo, my \new = series;
+            seen =:= todo ?? new !! seen;
         });
     }
 

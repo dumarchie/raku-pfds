@@ -1,10 +1,13 @@
+# IntelliJ project settings
+.idea
+*.iml
+
 # precompiled files
 .precomp
 lib/.precomp
 
-# IntelliJ project settings
-.idea
-*.iml
+# benchmark records
+bench/records.txt
 
 # distributions
 sdist

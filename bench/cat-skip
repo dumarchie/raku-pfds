@@ -1,0 +1,29 @@
+#!/usr/bin/env raku
+use v6.d;
+
+use lib 'lib';
+use PFDS::Series;
+
+# Construct series from fully reified slip
+my \n = 5E5;
+my \values = (^n).Slip;
+say "Reified Slip of {values.elems} values";
+
+benchmark {
+    my $series;
+    benchmark {
+        $series := series(values);
+    }, '$series := series(values)';
+    benchmark {
+        $series := $series ++ $series;
+    }, '$series := $series ++ $series' for ^2;
+    benchmark {
+        $series := $series.skip(n);
+    }, "\$series := \$series.skip({n})" for ^4;
+}, "Total time";
+
+sub benchmark(&run, $desc) {
+    my \start  = now;
+    run;
+    say sprintf "%-60s%0.3fs", $desc, now - start;
+}
