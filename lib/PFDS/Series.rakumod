@@ -63,16 +63,20 @@ my class Node does PFDS::Series {
 
 my class Stream does PFDS::Series {
     has $!state;
-    method !SET-SELF($!state) { self }
+    method !SET-SELF(\todo) {
+        $!state := todo;
+        self;
+    }
 
     # Protected constructor
-    my \todo = Mu.new;
-    &susp = sub (&series) {
-        my $state = todo;
-        ::?CLASS.CREATE!SET-SELF({
-            my \seen = cas $state, todo, my \new = series;
+    &susp = {
+        ::?CLASS.CREATE!SET-SELF(defer $_);
+    }
+    sub defer(&init) is raw {
+        my $state = my \todo = {
+            my \seen = cas $state, todo, my \new = init;
             seen =:= todo ?? new !! seen;
-        });
+        }
     }
 
     # To force evaluation
