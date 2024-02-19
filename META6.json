@@ -11,7 +11,7 @@
   "build-depends": [],
   "test-depends": [],
   "provides": {
-    "PFDS::Series": "lib/PFDS/Series.rakumod"
+    "PFDS": "lib/PFDS.rakumod"
   },
   "resources": [],
   "license": "Artistic-2.0",

@@ -2,28 +2,42 @@
 use v6.d;
 
 use lib 'lib';
-use PFDS::Series;
+use PFDS;
+
+my $format = "%-60s%0.3fs";
+sub benchmark(&performance, $desc, $overhead = 0) {
+    my $time = measure(&performance) - $overhead;
+    say sprintf $format, $desc, $time;
+    $time;
+}
+
+sub measure(&performance) {
+    my \start = now;
+    performance;
+    now - start;
+}
 
 # Construct series from fully reified slip
 my \n = 5E5;
 my \values = (^n).Slip;
 say "Reified Slip of {values.elems} values";
 
-benchmark {
-    my $series;
-    benchmark {
-        $series := series(values);
-    }, '$series := series(values)';
-    benchmark {
-        $series := $series ++ $series;
-    }, '$series := $series ++ $series' for ^2;
-    benchmark {
-        $series := $series.skip(n);
-    }, "\$series := \$series.skip({n})" for ^4;
-}, "Total time";
+my \m = n/2;
+my $series;
+my $overhead = benchmark {
+    $series := $_ for ^m;
+},"Overhead of binding {m} values:";
 
-sub benchmark(&run, $desc) {
-    my \start  = now;
-    run;
-    say sprintf "%-60s%0.3fs", $desc, now - start;
-}
+say "Start benchmarking";
+my $time = benchmark {
+    $series := series(values);
+}, '$series := series(values)';
+
+$time += benchmark {
+    $series := $series ++ $series;
+}, '$series := $series ++ $series' for ^2;
+
+$time += benchmark {
+    $series := $series.skip(2) for ^m;
+}, "\$series := \$series.skip(2) for ^{m} (excl. overhead)", $overhead for ^4;
+say sprintf $format, "Benchmark time minus overhead", $time;

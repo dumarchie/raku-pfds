@@ -7,7 +7,7 @@
 lib/.precomp
 
 # benchmark records
-bench/records.txt
+bench/*.txt
 
 # distributions
 sdist

@@ -2,7 +2,7 @@ use v6.d;
 use Test;
 
 use lib 'lib';
-use PFDS::Series;
+use PFDS;
 
 subtest 'series', {
     subtest 'empty series', {
