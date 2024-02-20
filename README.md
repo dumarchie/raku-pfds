@@ -10,15 +10,15 @@ DESCRIPTION
 
     role Series does Iterable {}
 
-    my class Node does Series {}
+    class Series::Node does Series {}
 
-    my class Stream does Series {}
+    class Stream does Series {}
 
 Module `PFDS` provides one of the most fundamental purely functional data types: immutable, potentially lazy **linked lists**. Linked lists don't support the efficient positional access that may be expected from Raku lists, hence this library calls them `Series`.
 
-A proper series is represented by a `Node` that links an immutable *value*, the `.head` of the series, to the series with the rest of the values. The last node of a series is linked to the empty series, the only `Series` evaluating to `False` in Boolean context.
+A proper series is represented by a `Series::Node` that links an immutable *value*, the `.head` of the series, to the series with the rest of the values. The last node of a series is linked to the empty series, the only `Series` which evaluates to `False` in Boolean context.
 
-A lazily evaluated, potentially infinite series is called a `Stream`. A stream may be called explicitly to obtain a `Node` or the empty series. Calling a method like `.Bool`, `.head` or `.skip` implicitly reifies the stream head.
+A lazily evaluated, potentially infinite series is called a `Stream`. A stream may be called explicitly to obtain a `Series::Node` or the empty series. Calling a method like `.Bool`, `.head` or `.skip` implicitly reifies the head of the stream.
 
 EXPORTS
 =======
@@ -32,7 +32,14 @@ Defined as:
 
     sub series(**@values --> Series)
 
-Returns a series of decontainerized `@values`.
+Returns the decontainerized values as a `Series`.
+
+sub stream
+----------
+
+    sub stream(+values --> Stream)
+
+Returns the decontainerized values as a `Stream`.
 
 infix ++
 --------
@@ -51,7 +58,7 @@ method CALL-ME
 
     method CALL-ME(--> Series)
 
-Returns the node at the head of the series, or the empty series if the series is empty.
+Returns the node at the head of the series, or the empty series if there is no such node.
 
 method head
 -----------

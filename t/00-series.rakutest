@@ -18,52 +18,98 @@ subtest 'series', {
         my \value = Mu.new;
         my $item  = value;
         $_ := series($item);
-        isa-ok $_, PFDS::Series, 'series($item) returns a PFDS::Series';
+        isa-ok $_, PFDS::Series::Node,
+          'series($item) returns a PFDS::Series::Node';
+
         cmp-ok .Bool, '=:=', True, '.Bool returns True';
 
         $item = Mu.new; # to check that the .head is bound to the bare value
         cmp-ok .head, '=:=', value,
-          '.head returns the value stored in $item when series($item) was called';
+          '.head returns the value of $item when series($item) was called';
 
-        cmp-ok .skip, 'eqv', series, '.skip returns the empty series';
+        cmp-ok .skip, 'eqv', series(), '.skip returns the empty series';
     }
 
     subtest 'series(1, 2)', {
         $_ := series(1, 2);
-        isa-ok $_, PFDS::Series, 'series(1, 2) returns a PFDS::Series';
+        isa-ok $_, PFDS::Series::Node,
+          'series(1, 2) returns a PFDS::Series::Node';
+
         cmp-ok .head, '=:=', 1, '.head returns the value 1';
         cmp-ok .list, 'eqv', (1, 2), '.list returns values 1, 2';
         cmp-ok .skip, 'eqv', series(2), '.skip returns series(2)';
     }
 
     # Check that a Slip slips
-    cmp-ok series(Empty), 'eqv', series, 'series(Empty) returns the empty series';
+    cmp-ok series(Empty), 'eqv', series(),
+      'series(Empty) returns the empty series';
+}
+
+# A Producer keeps track of how many values have been produced
+# so we can check that streams are as lazy as possible
+my class Producer is Range  {
+    has int $.produced;
+
+    method produce(int \pos) {
+        my \value := self.min + pos;
+        return Nil if value > self.max;
+
+        $!produced = pos + 1;
+        $(value);
+    }
+
+    method iterator() {
+        my class :: does Iterator {
+            has $.producer;
+            has int $.pos;
+
+            method pull-one() is raw {
+                $!producer.produce($!pos++) // IterationEnd;
+            }
+        }.new(producer => self);
+    }
+}
+
+subtest 'stream', {
+    my \values = Producer.new(0, 3);
+    $_ := stream(values);
+    isa-ok $_, PFDS::Stream, "stream(values) returns a PFDS::Stream";
+    is values.produced, 0, 'no values were evaluated';
+
+    cmp-ok .Bool, '=:=', True, '.Bool returns True';
+    cmp-ok .head, '=:=', 0, '.head returns the first value';
+    subtest '.skip', {
+        isa-ok $_, PFDS::Stream, "the result is a PFDS::Stream";
+        is values.produced, 1, 'only the first of the values was evaluated';
+        cmp-ok $_, 'eqv', stream(1..3),
+          'the second stream evaluates the rest of the values on demand';
+    } given .skip;
 }
 
 subtest 'infix ++', {
-    my \t = series(2, 3);
-    $_ := series(1) ++ t;
-    isa-ok $_, PFDS::Series, "series(1) ++ t returns a PFDS::Series";
+    $_ := series(1) ++ stream(2, 3);
+    isa-ok $_, PFDS::Stream,
+      "series(1) ++ stream(2, 3) returns a PFDS::Stream";
+
     cmp-ok .Bool, '=:=', True, '.Bool returns True';
-    cmp-ok .head, '=:=', 1, '.head returns the value 1';
-    cmp-ok .list, 'eqv', (1, 2, 3), '.list returns values 1, 2, 3';
-    cmp-ok .skip, 'eqv', series() ++ t, '.skip returns a suspended t';
+    cmp-ok .head, '=:=', 1, '.head returns 1';
+    cmp-ok .list, 'eqv', (1, 2, 3), '.list returns (1, 2, 3)';
+    cmp-ok .skip, 'eqv', stream(2, 3), '.skip returns stream(2, 3)';
 }
 
 subtest '.skip(n)', {
-    my \t = series(2, 3);
-    $_ := series(1) ++ t;
+    $_ := series(1) ++ stream(2..3);
 
     my \n = my $var = (-1, .9).pick;
     cmp-ok .skip(n), '=:=', $_, '.skip(n) returns the invocant if n.Int <= 0';
-    cmp-ok .skip(1), 'eqv', series() ++ t,
+    cmp-ok .skip(1), 'eqv', stream(2..3),
       '.skip(1) returns the series following the first value of the invocant';
 
-    cmp-ok .skip(2), 'eqv', series(3),
+    cmp-ok .skip(2), 'eqv', stream(3),
       '.skip(2) returns the series following the first two values';
 
     $var = (3, 4).pick;
-    cmp-ok .skip(n), 'eqv', series(),
+    cmp-ok .skip(n), 'eqv', stream(),
       '.skip(n) returns the empty series if n >= the number of values';
 }
 

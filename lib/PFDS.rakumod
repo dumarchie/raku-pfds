@@ -2,7 +2,7 @@ use v6.d;
 unit module PFDS;
 
 # To be defined later:
-my &cons; # protected Node constructor
+my &cons; # protected Series::Node constructor
 my &susp; # protected Stream constructor
 
 role Series does Iterable {
@@ -40,7 +40,7 @@ role Series does Iterable {
     method list() { self.Seq.list }
 }
 
-my class Node does Series {
+class Series::Node does Series {
     has $.value;
     has Series $.next;
     method !SET-SELF(Mu \value, \next) {
@@ -63,7 +63,7 @@ my class Node does Series {
     multi method skip(--> Series) { $!next  }
 }
 
-my class Stream does Series {
+class Stream does Series {
     has $!state;
     method !SET-SELF(\todo) {
         $!state := todo;
@@ -71,13 +71,16 @@ my class Stream does Series {
     }
 
     # Protected constructor
-    &susp = {
-        ::?CLASS.CREATE!SET-SELF(delay $_);
-    }
-    sub delay(&init) is raw {
-        my $state = my \todo = {
+    &susp = proto sub new(|) {*}
+    multi sub new(&init) {
+        ::?CLASS.CREATE!SET-SELF: my $state = my \todo = {
             my \seen = cas $state, todo, my \new = init;
             seen =:= todo ?? new !! seen;
+        }
+    }
+    multi sub new(&init, Lock:D \lock) {
+        ::?CLASS.CREATE!SET-SELF: my $state = my \todo = {
+            lock.protect: { $state = init if $state === todo }
         }
     }
 
@@ -112,6 +115,15 @@ sub link(@values) {
     $series;
 }
 
+sub stream(+values --> Stream) is export {
+    my \iterator = values.iterator;
+    my &flow = {
+        my \value = iterator.pull-one;
+        value =:= IterationEnd ?? Series !! cons(value<>, susp &flow, Lock.new)
+    };
+    susp &flow, Lock.new;
+}
+
 sub infix:<++>(Series \s, Series \t --> Stream:D) is export {
     susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
 }
@@ -128,23 +140,24 @@ PFDS - Purely functional data structures
 
     role Series does Iterable {}
 
-    my class Node does Series {}
+    class Series::Node does Series {}
 
-    my class Stream does Series {}
+    class Stream does Series {}
 
 Module C<PFDS> provides one of the most fundamental purely functional data
 types: immutable, potentially lazy B<linked lists>. Linked lists don't support
 the efficient positional access that may be expected from Raku lists, hence
 this library calls them C<Series>.
 
-A proper series is represented by a C<Node> that links an immutable I<value>,
-the C<.head> of the series, to the series with the rest of the values. The last
-node of a series is linked to the empty series, the only C<Series> evaluating
-to C<False> in Boolean context.
+A proper series is represented by a C<Series::Node> that links an immutable
+I<value>, the C<.head> of the series, to the series with the rest of the
+values. The last node of a series is linked to the empty series, the only
+C<Series> which evaluates to C<False> in Boolean context.
 
 A lazily evaluated, potentially infinite series is called a C<Stream>. A stream
-may be called explicitly to obtain a C<Node> or the empty series. Calling a
-method like C<.Bool>, C<.head> or C<.skip> implicitly reifies the stream head.
+may be called explicitly to obtain a C<Series::Node> or the empty series.
+Calling a method like C<.Bool>, C<.head> or C<.skip> implicitly reifies the
+head of the stream.
 
 =head1 EXPORTS
 
@@ -156,7 +169,13 @@ Defined as:
 
     sub series(**@values --> Series)
 
-Returns a series of decontainerized C<@values>.
+Returns the decontainerized values as a C<Series>.
+
+=head2 sub stream
+
+    sub stream(+values --> Stream)
+
+Returns the decontainerized values as a C<Stream>.
 
 =head2 infix ++
 
@@ -174,8 +193,8 @@ namespace.
 
     method CALL-ME(--> Series)
 
-Returns the node at the head of the series, or the empty series if the series
-is empty.
+Returns the node at the head of the series, or the empty series if there is no
+such node.
 
 =head2 method head
 
