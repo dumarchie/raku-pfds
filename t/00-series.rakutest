@@ -100,7 +100,7 @@ subtest 'infix ++', {
 subtest '.skip(n)', {
     $_ := series(1) ++ stream(2..3);
 
-    my \n = my $var = (-1, .9).pick;
+    my \n = (-1, .9).pick;
     cmp-ok .skip(n), '=:=', $_, '.skip(n) returns the invocant if n.Int <= 0';
     cmp-ok .skip(1), 'eqv', stream(2..3),
       '.skip(1) returns the series following the first value of the invocant';
@@ -108,9 +108,11 @@ subtest '.skip(n)', {
     cmp-ok .skip(2), 'eqv', stream(3),
       '.skip(2) returns the series following the first two values';
 
-    $var = (3, 4).pick;
-    cmp-ok .skip(n), 'eqv', stream(),
-      '.skip(n) returns the empty series if n >= the number of values';
+    cmp-ok .skip(3.9), 'eqv', stream(),
+      '.skip(n) returns the empty series if n.Int == the number of values';
+
+    cmp-ok .skip(4), 'eqv', series(),
+      '.skip(n) returns the empty series if n.Int > the number of values';
 }
 
 done-testing;

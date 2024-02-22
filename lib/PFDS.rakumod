@@ -17,7 +17,7 @@ role Series does Iterable {
         my $series := self;
         my int $n = n;
         while $n-- > 0 {
-            my \node = $series() or last;
+            my \node = $series() or return Series;
             $series := node.skip;
         }
         $series;
