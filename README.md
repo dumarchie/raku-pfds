@@ -48,6 +48,20 @@ infix ++
 
 Concatenates the two series into a stream containing the values of `s` followed by the values of `t`.
 
+sub copy
+--------
+
+    multi sub copy(\n, Series \values --> Series)
+
+Returns a lazy copy of the first `n` values.
+
+sub skip
+--------
+
+    multi sub skip(\n, Series \values --> Series)
+
+Returns the series without the first `n` values.
+
 METHODS
 =======
 
@@ -66,7 +80,7 @@ method copy
     multi method copy(Int() \n --> Series)
     multi method copy(int \n --> Series)
 
-Returns the first `n` values of the invocant as a stream, or the empty series if `n <= 0`.
+Returns the first `n` values of the invocant as a stream, or the empty series if `n < 1`.
 
 method head
 -----------

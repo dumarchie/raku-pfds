@@ -15,11 +15,11 @@ role Series does Iterable {
         self.copy(my int $ = n);
     }
     multi method copy(int \n --> Series) {
-        n > 0 ?? susp {
+        n < 1 ?? Series !! susp {
             (my \node = self.())
               ?? cons(node.head, node.skip.copy(n - 1))
               !! Series;
-        } !! Series;
+        };
     }
 
     # Destructuring
@@ -137,6 +137,14 @@ sub stream(+values --> Stream) is export {
     susp &flow, Lock.new;
 }
 
+multi sub copy(\n, Series \values --> Series) is export {
+    values.copy(n);
+}
+
+multi sub skip(\n, Series \values --> Series) is export {
+    values.skip(n);
+}
+
 sub infix:<++>(Series \s, Series \t --> Stream:D) is export {
     susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
 }
@@ -197,6 +205,18 @@ Returns the decontainerized values as a C<Stream>.
 Concatenates the two series into a stream containing the values of C<s>
 followed by the values of C<t>.
 
+=head2 sub copy
+
+    multi sub copy(\n, Series \values --> Series)
+
+Returns a lazy copy of the first C<n> values.
+
+=head2 sub skip
+
+    multi sub skip(\n, Series \values --> Series)
+
+Returns the series without the first C<n> values.
+
 =head1 METHODS
 
 The following methods are implemented by all C<Series> types in the C<PFDS>
@@ -215,7 +235,7 @@ such node.
     multi method copy(int \n --> Series)
 
 Returns the first C<n> values of the invocant as a stream, or the empty series
-if C«n <= 0».
+if C«n < 1».
 
 =head2 method head
 
