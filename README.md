@@ -48,10 +48,10 @@ infix ++
 
 Concatenates the two series into a stream containing the values of `s` followed by the values of `t`.
 
-sub copy
+sub head
 --------
 
-    multi sub copy(\n, Series \values --> Series)
+    multi sub head(\n, Series \values --> Series)
 
 Returns a lazy copy of the first `n` values.
 
@@ -74,20 +74,14 @@ method CALL-ME
 
 Returns the node at the head of the series, or the empty series if there is no such node.
 
-method copy
------------
-
-    multi method copy(Int() \n --> Series)
-    multi method copy(int \n --> Series)
-
-Returns the first `n` values of the invocant as a stream, or the empty series if `n < 1`.
-
 method head
 -----------
 
     multi method head()
+    multi method head(Int() \n --> Series)
+    multi method head(int \n --> Series)
 
-Returns the first value of the series, or `Nil` if the series is empty.
+Returns the first value of the series (by default `Nil`) if called without argument. Otherwise returns the first `n` values of the invocant as a stream, or the empty series if `n < 1`.
 
 method iterator
 ---------------

@@ -98,16 +98,16 @@ subtest 'infix ++', {
 }
 
 
-subtest 'copy(n, values)', {
+subtest 'head(n, values)', {
     my \values = series(1, 2, 3);
-    cmp-ok copy(0.9, values), 'eqv', series,
-      'copy(n, values) returns the empty series if n < 1';
+    cmp-ok head(0.9, values), 'eqv', series,
+      'head(n, values) returns the empty series if n < 1';
 
-    cmp-ok copy(1, values), 'eqv', stream(1),
-      'copy(1, values) returns a stream with the first value of the invocant';
+    cmp-ok head(1, values), 'eqv', stream(1),
+      'head(1, values) returns a stream with the first value of the invocant';
 
-    cmp-ok copy(4, values), 'eqv', stream(1..3),
-      'copy(n, values) returns a stream with the first n values';
+    cmp-ok head(4, values), 'eqv', stream(1..3),
+      'head(n, values) returns a stream with the first n values';
 }
 
 subtest 'skip(n, values)', {

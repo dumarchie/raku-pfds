@@ -9,31 +9,17 @@ role Series does Iterable {
     # If forced, return the type object representing the empty series
     method CALL-ME(--> Series) { Series }
 
-    # Copying
-    proto method copy(|) {*}
-    multi method copy(Int() \n --> Series) {
-        self.copy(my int $ = n);
+    proto method head(|) {*}
+    multi method head() { Nil }
+    multi method head(Int() \n --> Series) {
+        self.head(my int $ = n);
     }
-    multi method copy(int \n --> Series) {
+    multi method head(int \n --> Series) {
         n < 1 ?? Series !! susp {
             (my \node = self.())
-              ?? cons(node.head, node.skip.copy(n - 1))
+              ?? cons(node.head, node.skip.head(n - 1))
               !! Series;
         };
-    }
-
-    # Destructuring
-    multi method head() {}
-
-    multi method skip(--> Series) { Series }
-    multi method skip(Int() \n --> Series) {
-        my $series := self;
-        my int $n = n;
-        while $n-- > 0 {
-            my \node = $series() or return Series;
-            $series := node.skip;
-        }
-        $series;
     }
 
     # Iterable methods
@@ -51,6 +37,17 @@ role Series does Iterable {
     }
 
     method list() { self.Seq.list }
+
+    multi method skip(--> Series) { Series }
+    multi method skip(Int() \n --> Series) {
+        my $series := self;
+        my int $n = n;
+        while $n-- > 0 {
+            my \node = $series() or return Series;
+            $series := node.skip;
+        }
+        $series;
+    }
 }
 
 class Series::Node does Series {
@@ -137,8 +134,8 @@ sub stream(+values --> Stream) is export {
     susp &flow, Lock.new;
 }
 
-multi sub copy(\n, Series \values --> Series) is export {
-    values.copy(n);
+multi sub head(\n, Series \values --> Series) is export {
+    values.head(n);
 }
 
 multi sub skip(\n, Series \values --> Series) is export {
@@ -205,9 +202,9 @@ Returns the decontainerized values as a C<Stream>.
 Concatenates the two series into a stream containing the values of C<s>
 followed by the values of C<t>.
 
-=head2 sub copy
+=head2 sub head
 
-    multi sub copy(\n, Series \values --> Series)
+    multi sub head(\n, Series \values --> Series)
 
 Returns a lazy copy of the first C<n> values.
 
@@ -229,19 +226,15 @@ namespace.
 Returns the node at the head of the series, or the empty series if there is no
 such node.
 
-=head2 method copy
-
-    multi method copy(Int() \n --> Series)
-    multi method copy(int \n --> Series)
-
-Returns the first C<n> values of the invocant as a stream, or the empty series
-if C«n < 1».
-
 =head2 method head
 
     multi method head()
+    multi method head(Int() \n --> Series)
+    multi method head(int \n --> Series)
 
-Returns the first value of the series, or C<Nil> if the series is empty.
+Returns the first value of the series (by default C<Nil>) if called without
+argument. Otherwise returns the first C<n> values of the invocant as a stream,
+or the empty series if C«n < 1».
 
 =head2 method iterator
 
