@@ -60,6 +60,14 @@ method CALL-ME
 
 Returns the node at the head of the series, or the empty series if there is no such node.
 
+method copy
+-----------
+
+    multi method copy(Int() \n --> Series)
+    multi method copy(int \n --> Series)
+
+Returns the first `n` values of the invocant as a stream, or the empty series if `n <= 0`.
+
 method head
 -----------
 

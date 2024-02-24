@@ -9,6 +9,19 @@ role Series does Iterable {
     # If forced, return the type object representing the empty series
     method CALL-ME(--> Series) { Series }
 
+    # Copying
+    proto method copy(|) {*}
+    multi method copy(Int() \n --> Series) {
+        self.copy(my int $ = n);
+    }
+    multi method copy(int \n --> Series) {
+        n > 0 ?? susp {
+            (my \node = self.())
+              ?? cons(node.head, node.skip.copy(n - 1))
+              !! Series;
+        } !! Series;
+    }
+
     # Destructuring
     multi method head() {}
 
@@ -195,6 +208,14 @@ namespace.
 
 Returns the node at the head of the series, or the empty series if there is no
 such node.
+
+=head2 method copy
+
+    multi method copy(Int() \n --> Series)
+    multi method copy(int \n --> Series)
+
+Returns the first C<n> values of the invocant as a stream, or the empty series
+if C«n <= 0».
 
 =head2 method head
 
