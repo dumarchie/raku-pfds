@@ -55,6 +55,13 @@ sub head
 
 Returns a lazy copy of the first `n` values.
 
+sub insert
+----------
+
+    multi insert(Mu \value, Series \values --> Series::Node:D)
+
+Links the decontainerized `value` to the provided series.
+
 sub reverse
 -----------
 
@@ -89,6 +96,13 @@ method head
     multi method head(int \n --> Series)
 
 Returns the first value of the series (by default `Nil`) if called without argument. Otherwise returns the first `n` values of the invocant as a stream, or the empty series if `n < 1`.
+
+method insert
+-------------
+
+    method insert(Mu \value --> Series)
+
+Returns a new series that links the decontainerized `value` to the original series.
 
 method iterator
 ---------------

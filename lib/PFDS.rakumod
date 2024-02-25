@@ -22,7 +22,10 @@ role Series does Iterable {
         };
     }
 
-    # Iterable methods
+    method insert(Mu \value --> Series) {
+        cons(value<>, self // Series);
+    }
+
     method iterator(--> Iterator:D) {
         my class :: does Iterator {
             has $.series;
@@ -118,6 +121,10 @@ class Stream does Series {
 }
 
 # Exported and helper functions
+multi insert(Mu \value, Series \values --> Series::Node:D) is export {
+    values.insert(value);
+}
+
 proto series(| --> Series) is export {*}
 multi series() { Series }
 multi series(Mu \item) {
@@ -222,6 +229,12 @@ followed by the values of C<t>.
 
 Returns a lazy copy of the first C<n> values.
 
+=head2 sub insert
+
+    multi insert(Mu \value, Series \values --> Series::Node:D)
+
+Links the decontainerized C<value> to the provided series.
+
 =head2 sub reverse
 
     multi sub reverse(Series \values --> Series)
@@ -255,6 +268,13 @@ such node.
 Returns the first value of the series (by default C<Nil>) if called without
 argument. Otherwise returns the first C<n> values of the invocant as a stream,
 or the empty series if C«n < 1».
+
+=head2 method insert
+
+    method insert(Mu \value --> Series)
+
+Returns a new series that links the decontainerized C<value> to the original
+series.
 
 =head2 method iterator
 

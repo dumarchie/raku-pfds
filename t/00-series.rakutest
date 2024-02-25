@@ -110,6 +110,24 @@ subtest 'head(n, values)', {
       'head(n, values) returns a stream with the first n values';
 }
 
+subtest 'insert($item, values)', {
+    my $item = my \value = Mu.new;
+    my \values = stream();
+    $_ := insert($item, values);
+    isa-ok $_, PFDS::Series::Node,
+      'insert($item, values) returns a PFDS::Series::Node';
+
+    $item = 42;
+    cmp-ok .head, '=:=', value,
+      '.head returns the value of $item at insert time';
+
+    cmp-ok .skip, '=:=', values, '.skip returns the original values';
+
+    $_ := insert($item, values.WHAT);
+    cmp-ok .skip, '=:=', series,
+      '.skip returns the empty series if the second argument was not defined';
+}
+
 {
     my \values = series(1, 2, 3);
     cmp-ok reverse(values), 'eqv', series(3, 2, 1), 'reverse(values)';
