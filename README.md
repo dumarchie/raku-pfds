@@ -55,6 +55,13 @@ sub head
 
 Returns a lazy copy of the first `n` values.
 
+sub reverse
+-----------
+
+    multi sub reverse(Series \values --> Series)
+
+Returns a series with the same values in reverse order.
+
 sub skip
 --------
 
@@ -96,6 +103,13 @@ method list
     method list()
 
 Returns a [list](https://docs.raku.org/type/PositionalBindFailover#method_list) based on the `.iterator`. Note that such lazy lists are *not thread-safe*.
+
+method reverse
+--------------
+
+    multi method reverse(--> Series)
+
+Returns a series with the same values in reverse order.
 
 method skip
 -----------

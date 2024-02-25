@@ -110,9 +110,14 @@ subtest 'head(n, values)', {
       'head(n, values) returns a stream with the first n values';
 }
 
+{
+    my \values = series(1, 2, 3);
+    cmp-ok reverse(values), 'eqv', series(3, 2, 1), 'reverse(values)';
+}
+
 subtest 'skip(n, values)', {
-    $_ := my \values = series(1) ++ stream(2..3);
-    cmp-ok skip(0.9, values), '=:=', $_,
+    my \values = series(1) ++ stream(2..3);
+    cmp-ok skip(0.9, values), '=:=', values,
       'skip(n, values) returns the invocant if n < 1';
 
     cmp-ok skip(1, values), 'eqv', stream(2..3),

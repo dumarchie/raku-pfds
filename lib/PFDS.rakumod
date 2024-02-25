@@ -38,6 +38,16 @@ role Series does Iterable {
 
     method list() { self.Seq.list }
 
+    multi method reverse(--> Series) {
+        my $series := Series;
+        my $source := self;
+        while my \node = $source() {
+            $series := cons(node.value, $series);
+            $source := node.skip;
+        }
+        $series;
+    }
+
     multi method skip(--> Series) { Series }
     multi method skip(Int() \n --> Series) {
         my $series := self;
@@ -138,6 +148,10 @@ multi sub head(\n, Series \values --> Series) is export {
     values.head(n);
 }
 
+multi sub reverse(Series \values --> Series) is export {
+    values.reverse;
+}
+
 multi sub skip(\n, Series \values --> Series) is export {
     values.skip(n);
 }
@@ -208,6 +222,12 @@ followed by the values of C<t>.
 
 Returns a lazy copy of the first C<n> values.
 
+=head2 sub reverse
+
+    multi sub reverse(Series \values --> Series)
+
+Returns a series with the same values in reverse order.
+
 =head2 sub skip
 
     multi sub skip(\n, Series \values --> Series)
@@ -250,6 +270,12 @@ thread-safe>.
 
 Returns a L<list|https://docs.raku.org/type/PositionalBindFailover#method_list>
 based on the C<.iterator>. Note that such lazy lists are I<not thread-safe>.
+
+=head2 method reverse
+
+    multi method reverse(--> Series)
+
+Returns a series with the same values in reverse order.
 
 =head2 method skip
 
