@@ -41,40 +41,19 @@ sub stream
 
 Returns the decontainerized values as a `Stream`.
 
+infix ::
+--------
+
+    sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
+
+Constructs a `Series::Node` that links the decontainerized `value` to series `t`.
+
 infix ++
 --------
 
     sub infix:<++>(Series \s, Series \t --> Stream:D)
 
-Concatenates the two series into a stream containing the values of `s` followed by the values of `t`.
-
-sub head
---------
-
-    multi sub head(\n, Series \values --> Series)
-
-Returns a lazy copy of the first `n` values.
-
-sub insert
-----------
-
-    multi insert(Mu \value, Series \values --> Series::Node:D)
-
-Links the decontainerized `value` to the provided series.
-
-sub reverse
------------
-
-    multi sub reverse(Series \values --> Series)
-
-Returns a series with the same values in reverse order.
-
-sub skip
---------
-
-    multi sub skip(\n, Series \values --> Series)
-
-Returns the series without the first `n` values.
+Concatenates two series into a stream containing the values of `s` followed by the values of `t`.
 
 METHODS
 =======
@@ -102,7 +81,7 @@ method insert
 
     method insert(Mu \value --> Series)
 
-Returns a new series that links the decontainerized `value` to the original series.
+This method version of infix ++ returns a new series that links the decontainerized `value` to the invocant.
 
 method iterator
 ---------------

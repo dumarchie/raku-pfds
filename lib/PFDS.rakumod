@@ -121,14 +121,10 @@ class Stream does Series {
 }
 
 # Exported and helper functions
-multi insert(Mu \value, Series \values --> Series::Node:D) is export {
-    values.insert(value);
-}
-
 proto series(| --> Series) is export {*}
 multi series() { Series }
-multi series(Mu \item) {
-    cons(item<>, Series);
+multi series(Mu \value) {
+    cons(value<>, Series);
 }
 multi series(Slip \values) {
     link(values);
@@ -151,17 +147,8 @@ sub stream(+values --> Stream) is export {
     susp &flow, Lock.new;
 }
 
-multi sub head(\n, Series \values --> Series) is export {
-    values.head(n);
-}
-
-multi sub reverse(Series \values --> Series) is export {
-    values.reverse;
-}
-
-multi sub skip(\n, Series \values --> Series) is export {
-    values.skip(n);
-}
+sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
+  is export { t.insert(value) }
 
 sub infix:<++>(Series \s, Series \t --> Stream:D) is export {
     susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
@@ -216,36 +203,19 @@ Returns the decontainerized values as a C<Series>.
 
 Returns the decontainerized values as a C<Stream>.
 
+=head2 infix ::
+
+    sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
+
+Constructs a C<Series::Node> that links the decontainerized C<value> to series
+C<t>.
+
 =head2 infix ++
 
     sub infix:<++>(Series \s, Series \t --> Stream:D)
 
-Concatenates the two series into a stream containing the values of C<s>
-followed by the values of C<t>.
-
-=head2 sub head
-
-    multi sub head(\n, Series \values --> Series)
-
-Returns a lazy copy of the first C<n> values.
-
-=head2 sub insert
-
-    multi insert(Mu \value, Series \values --> Series::Node:D)
-
-Links the decontainerized C<value> to the provided series.
-
-=head2 sub reverse
-
-    multi sub reverse(Series \values --> Series)
-
-Returns a series with the same values in reverse order.
-
-=head2 sub skip
-
-    multi sub skip(\n, Series \values --> Series)
-
-Returns the series without the first C<n> values.
+Concatenates two series into a stream containing the values of C<s> followed by
+the values of C<t>.
 
 =head1 METHODS
 
@@ -273,8 +243,8 @@ or the empty series if C«n < 1».
 
     method insert(Mu \value --> Series)
 
-Returns a new series that links the decontainerized C<value> to the original
-series.
+This method version of infix ++ returns a new series that links the
+decontainerized C<value> to the invocant.
 
 =head2 method iterator
 

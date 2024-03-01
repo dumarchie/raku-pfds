@@ -45,6 +45,25 @@ subtest 'series', {
       'series(Empty) returns the empty series';
 }
 
+subtest 'infix ::', {
+    subtest '$item :: values', {
+        my $item = my \value = Mu.new;
+        my \values = (PFDS::Series, PFDS::Series::Node, PFDS::Stream).pick;
+        $_ := $item :: values;
+        isa-ok $_, PFDS::Series::Node, 'the result is a PFDS::Series::Node';
+
+        $item = 0;
+        cmp-ok .head, '=:=', value,
+                '.head returns the value of the left operand at node construction time';
+
+        cmp-ok .skip, '=:=', series(),
+                '.skip returns the empty series if the right operand was not defined';
+    }
+
+    cmp-ok (1 :: 2 :: series), 'eqv', series(1, 2),
+      '(1 :: 2 :: series) is equivalent to series(1, 2)';
+}
+
 # A Producer keeps track of how many values have been produced
 # so we can check that streams are as lazy as possible
 my class Producer is Range  {
@@ -97,55 +116,36 @@ subtest 'infix ++', {
     cmp-ok .skip, 'eqv', stream(2, 3), '.skip returns stream(2, 3)';
 }
 
+subtest '.head(n)', {
+    $_ := series(1, 2, 3);
+    cmp-ok .head(0.9), 'eqv', series,
+      '.head(n) returns the empty series if n < 1';
 
-subtest 'head(n, values)', {
-    my \values = series(1, 2, 3);
-    cmp-ok head(0.9, values), 'eqv', series,
-      'head(n, values) returns the empty series if n < 1';
+    cmp-ok .head(1), 'eqv', stream(1),
+      '.head(1) returns a stream with the first value of the invocant';
 
-    cmp-ok head(1, values), 'eqv', stream(1),
-      'head(1, values) returns a stream with the first value of the invocant';
-
-    cmp-ok head(4, values), 'eqv', stream(1..3),
-      'head(n, values) returns a stream with the first n values';
-}
-
-subtest 'insert($item, values)', {
-    my $item = my \value = Mu.new;
-    my \values = stream();
-    $_ := insert($item, values);
-    isa-ok $_, PFDS::Series::Node,
-      'insert($item, values) returns a PFDS::Series::Node';
-
-    $item = 42;
-    cmp-ok .head, '=:=', value,
-      '.head returns the value of $item at insert time';
-
-    cmp-ok .skip, '=:=', values, '.skip returns the original values';
-
-    $_ := insert($item, values.WHAT);
-    cmp-ok .skip, '=:=', series,
-      '.skip returns the empty series if the second argument was not defined';
+    cmp-ok .head(4), 'eqv', stream(1..3),
+      '.head(n) returns a stream with the first n values of the invocant';
 }
 
 {
-    my \values = series(1, 2, 3);
-    cmp-ok reverse(values), 'eqv', series(3, 2, 1), 'reverse(values)';
+    $_ := series(1, 2, 3);
+    cmp-ok .reverse, 'eqv', series(3, 2, 1), '.reverse';
 }
 
-subtest 'skip(n, values)', {
-    my \values = series(1) ++ stream(2..3);
-    cmp-ok skip(0.9, values), '=:=', values,
-      'skip(n, values) returns the invocant if n < 1';
+subtest '.skip(n)', {
+    $_ := series(1) ++ stream(2..3);
+    cmp-ok .skip(0.9), '=:=', $_,
+      '.skip(n) returns the invocant if n < 1';
 
-    cmp-ok skip(1, values), 'eqv', stream(2..3),
-      'skip(1, values) returns the series following the first value';
+    cmp-ok .skip(1), 'eqv', stream(2..3),
+      '.skip(1) returns the series following the first value';
 
-    cmp-ok skip(3.9, values), 'eqv', stream(),
-      'skip(n, values) returns an empty stream if n.Int == values.elems';
+    cmp-ok .skip(3.9), 'eqv', stream(),
+      '.skip(n) returns an empty stream if n.Int == .elems';
 
-    cmp-ok skip(4, values), 'eqv', series(),
-      'skip(n, values) returns the empty series if n.Int > values.elems';
+    cmp-ok .skip(4), 'eqv', series(),
+      '.skip(n) returns the empty series if n.Int > .elems';
 }
 
 done-testing;
