@@ -32,14 +32,14 @@ Defined as:
 
     sub series(**@values --> Series)
 
-Returns the decontainerized values as a `Series`.
+Returns the decontainerized `@values` as a `Series`.
 
 sub stream
 ----------
 
     sub stream(+values --> Stream)
 
-Returns the decontainerized values as a `Stream`.
+Returns the decontainerized `values` as a `Stream`.
 
 infix ::
 --------
@@ -79,9 +79,11 @@ Returns the first value of the series (by default `Nil`) if called without argum
 method insert
 -------------
 
-    method insert(Mu \value --> Series)
+Defined as:
 
-This method version of infix ++ returns a new series that links the decontainerized `value` to the invocant.
+    method insert(**@values --> Series)
+
+Returns a `Series` that consists of the decontainerized `@values` followed by the values of the invocant.
 
 method iterator
 ---------------

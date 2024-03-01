@@ -1,7 +1,7 @@
 use v6.d;
 unit module PFDS;
 
-# To be defined later:
+# To be defined in the respective classes:
 my &cons; # protected Series::Node constructor
 my &susp; # protected Stream constructor
 
@@ -22,8 +22,20 @@ role Series does Iterable {
         };
     }
 
-    method insert(Mu \value --> Series) {
+    proto method insert(|) {*}
+    multi method insert(Mu \value --> Series) {
         cons(value<>, self // Series);
+    }
+    multi method insert(Slip \values --> Series) {
+        self!insert-list(values);
+    }
+    multi method insert(**@values is raw --> Series) {
+        self!insert-list(@values);
+    }
+    method !insert-list(@values) {
+        my $series := self // Series;
+        $series := cons($_<>, $series) for @values.reverse;
+        $series;
     }
 
     method iterator(--> Iterator:D) {
@@ -120,22 +132,11 @@ class Stream does Series {
     multi method skip(--> Series) { self.().skip }
 }
 
-# Exported and helper functions
-proto series(| --> Series) is export {*}
-multi series() { Series }
-multi series(Mu \value) {
-    cons(value<>, Series);
-}
-multi series(Slip \values) {
-    link(values);
-}
-multi series(**@values is raw) {
-    link(@values);
-}
-sub link(@values) {
-    my $series := Series;
-    $series := cons($_<>, $series) for @values.reverse;
-    $series;
+# Exported functions and operators
+proto series(|) is export {*}
+multi series(--> Series) { Series }
+multi series(**@values is raw --> Series) {
+    Series.insert(@values.Slip);
 }
 
 sub stream(+values --> Stream) is export {
@@ -195,13 +196,13 @@ Defined as:
 
     sub series(**@values --> Series)
 
-Returns the decontainerized values as a C<Series>.
+Returns the decontainerized C<@values> as a C<Series>.
 
 =head2 sub stream
 
     sub stream(+values --> Stream)
 
-Returns the decontainerized values as a C<Stream>.
+Returns the decontainerized C<values> as a C<Stream>.
 
 =head2 infix ::
 
@@ -241,10 +242,12 @@ or the empty series if C«n < 1».
 
 =head2 method insert
 
-    method insert(Mu \value --> Series)
+Defined as:
 
-This method version of infix ++ returns a new series that links the
-decontainerized C<value> to the invocant.
+    method insert(**@values --> Series)
+
+Returns a C<Series> that consists of the decontainerized C<@values> followed by
+the values of the invocant.
 
 =head2 method iterator
 

@@ -128,6 +128,40 @@ subtest '.head(n)', {
       '.head(n) returns a stream with the first n values of the invocant';
 }
 
+subtest '$series.insert(...)', {
+    my $series = series(3);
+    subtest 'series.insert($item)', {
+        my \value = Mu.new;
+        my $item  = value;
+        $_ := $series.insert($item);
+        isa-ok $_, PFDS::Series::Node,
+          '$series.insert($item) returns a PFDS::Series::Node';
+
+        cmp-ok .Bool, '=:=', True, '.Bool returns True';
+
+        $item = Mu.new; # to check that the .head is bound to the bare value
+        cmp-ok .head, '=:=', value,
+          '.head returns the value of $item at insert time';
+
+        cmp-ok .skip, '=:=', $series.self, '.skip returns the invocant self';
+    }
+
+    subtest '$series.insert(a, b)', {
+        $_ := $series.insert(1, 2);
+        isa-ok $_, PFDS::Series::Node,
+          '$series.insert(a, b) returns a PFDS::Series::Node';
+
+        cmp-ok .head, '=:=', 1, '.head returns the value of a';
+        cmp-ok .skip, 'eqv', $series.insert(2),
+          '$series.skip returns returns the equivalent of $series.insert(2)';
+    }
+
+    # Check that a Slip slips
+    $series.insert(Empty);
+    cmp-ok $series.insert(Empty), '=:=', $series.self,
+      '$series.insert(Empty) returns the invocant self';
+}
+
 {
     $_ := series(1, 2, 3);
     cmp-ok .reverse, 'eqv', series(3, 2, 1), '.reverse';
