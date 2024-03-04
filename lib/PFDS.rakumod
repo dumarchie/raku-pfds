@@ -3,6 +3,7 @@ unit module PFDS;
 
 # To be defined in the respective classes:
 my &cons; # protected Series::Node constructor
+my &prep; # protected Series constructor
 my &susp; # protected Stream constructor
 
 role Series does Iterable {
@@ -32,7 +33,7 @@ role Series does Iterable {
     multi method insert(**@values is raw --> Series) {
         self!insert-list(@values);
     }
-    method !insert-list(@values) {
+    &prep = method !insert-list(@values) {
         my $series := self // Series;
         $series := cons($_<>, $series) for @values.reverse;
         $series;
@@ -135,8 +136,14 @@ class Stream does Series {
 # Exported functions and operators
 proto series(|) is export {*}
 multi series(--> Series) { Series }
+multi series(Mu \value --> Series) {
+    cons(value<>, Series);
+}
+multi series(Slip \values --> Series) {
+    prep(Series, values);
+}
 multi series(**@values is raw --> Series) {
-    Series.insert(@values.Slip);
+    prep(Series, @values);
 }
 
 sub stream(+values --> Stream) is export {
