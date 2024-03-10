@@ -23,6 +23,10 @@ role PFDS::Sequence does Iterable {
         }.new(sequence => self);
     }
 
+    multi method list(::?CLASS:D: --> List:D) {
+        self.Seq.list;
+    }
+
     multi method skip(::?CLASS:D: --> ::?CLASS:D) {...}
     multi method skip(::?CLASS:D: Int() \n --> ::?CLASS:D) {
         my int $n = n;
@@ -84,9 +88,15 @@ the front of the queue, or C<Nil> if the sequence is empty.
 
     multi method iterator(::?CLASS:D: --> Iterator:D)
 
-Returns an L<C<Iterator>|https://docs.raku.org/type/Iterator> over the items in
-the sequence. Note that iterators are inherently mutable, so they're I<not
-thread-safe>.
+Returns an C<Iterator> over the items in the sequence. Note that iterators are
+inherently mutable, so they're I<not thread-safe>.
+
+=head2 method list
+
+    multi method list(::?CLASS:D: --> List:D)
+
+Returns a lazy C<List> based on the C<.iterator>. Note that lists are I<not
+thread-safe> until fully reified.
 
 =head2 method skip
 

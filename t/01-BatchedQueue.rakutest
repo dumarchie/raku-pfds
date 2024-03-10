@@ -1,52 +1,7 @@
 use v6.d;
-use Test;
+
+use lib 't/lib';
+use Test::Queue;
 
 use lib 'lib';
-use PFDS::BatchedQueue;
-
-my $empty;
-subtest 'PFDS::BatchedQueue.new', {
-    $empty := PFDS::BatchedQueue.new;
-    isa-ok $empty, PFDS::BatchedQueue:D,
-      'PFDS::BatchedQueue.new returns a PFDS::BatchedQueue object instance';
-
-    cmp-ok $empty.Bool, '=:=', False,  '.Bool returns False';
-    cmp-ok $empty.head, '=:=', Nil,    '.head returns Nil';
-    cmp-ok $empty.skip, 'eqv', $empty, '.skip returns an empty queue';
-    throws-like { $empty.Capture }, X::Cannot::Capture, what => $empty,
-      '.Capture throws';
-}
-
-subtest 'enqueue($item)', {
-    my PFDS::BatchedQueue $queue;
-    my $item = my \value = Mu.new;
-    subtest 'invocant is undefined', {
-        $queue .= enqueue($item);
-        isa-ok $queue, PFDS::BatchedQueue:D,
-          'the result is a PFDS::BatchedQueue object instance';
-
-        $item = 42;
-        cmp-ok $queue.Bool, '=:=', True,   '.Bool returns True';
-        cmp-ok $queue.head, '=:=', value,  '.head returns the value of $item';
-        cmp-ok $queue.skip, 'eqv', $empty, '.skip returns an empty queue';
-        subtest '.Capture', {
-            my (\item, \rest) := $queue;
-            cmp-ok item, '=:=', $queue.head, 'at pos 0 is the result of .head';
-            cmp-ok rest, 'eqv', $queue.skip, 'at pos 1 is the result of .skip';
-        };
-    }
-
-    subtest 'invocant is defined', {
-        $_ := $queue.enqueue($item);
-        isa-ok $_, PFDS::BatchedQueue:D,
-          'the result is a PFDS::BatchedQueue object instance';
-
-        cmp-ok .head, '=:=', value,
-          '.head returns the value of the item that was enqueued first';
-
-        cmp-ok .skip, 'eqv', PFDS::BatchedQueue.enqueue(42),
-          '.skip returns a queue with the remaining item';
-    }
-}
-
-done-testing;
+queue-ok 'PFDS::BatchedQueue';

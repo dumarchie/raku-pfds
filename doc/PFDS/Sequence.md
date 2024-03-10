@@ -48,7 +48,14 @@ method iterator
 
     multi method iterator(::?CLASS:D: --> Iterator:D)
 
-Returns an [`Iterator`](https://docs.raku.org/type/Iterator) over the items in the sequence. Note that iterators are inherently mutable, so they're *not thread-safe*.
+Returns an `Iterator` over the items in the sequence. Note that iterators are inherently mutable, so they're *not thread-safe*.
+
+method list
+-----------
+
+    multi method list(::?CLASS:D: --> List:D)
+
+Returns a lazy `List` based on the `.iterator`. Note that lists are *not thread-safe* until fully reified.
 
 method skip
 -----------
