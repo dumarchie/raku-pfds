@@ -11,7 +11,10 @@
   "build-depends": [],
   "test-depends": [],
   "provides": {
-    "PFDS": "lib/PFDS.rakumod"
+    "PFDS": "lib/PFDS.rakumod",
+    "PFDS::BatchedQueue": "lib/PFDS/BatchedQueue.rakumod",
+    "PFDS::Queue": "lib/PFDS/Queue.rakumod",
+    "PFDS::Sequence": "lib/PFDS/Sequence.rakumod"
   },
   "resources": [],
   "license": "Artistic-2.0",
