@@ -102,9 +102,9 @@ Returns a [list](https://docs.raku.org/type/PositionalBindFailover#method_list) 
 method reverse
 --------------
 
-    multi method reverse(--> Series)
+    method reverse(--> Series)
 
-Returns a series with the same values in reverse order.
+Returns a clone of the invocant with the same values in reverse order. This takes *O*(n) time, but the actual reversal of a `Stream` is delayed until properties of the reversed stream are accessed.
 
 method skip
 -----------

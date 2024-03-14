@@ -87,5 +87,3 @@ Returns a queue with the remaining items after discarding the item at the
 front.
 
 =end pod
-
-

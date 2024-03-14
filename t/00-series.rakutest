@@ -162,9 +162,12 @@ subtest '$series.insert(...)', {
       '$series.insert(Empty) returns the invocant self';
 }
 
-{
-    $_ := series(1, 2, 3);
-    cmp-ok .reverse, 'eqv', series(3, 2, 1), '.reverse';
+subtest '.reverse', {
+    cmp-ok series(1, 2, 3).reverse, 'eqv', series(3, 2, 1),
+      'series(1, 2, 3).reverse';
+
+    cmp-ok stream(1, 2, 3).reverse, 'eqv', stream(3, 2, 1),
+      'stream(1, 2, 3).reverse';
 }
 
 subtest '.skip(n)', {

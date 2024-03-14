@@ -54,7 +54,7 @@ role Series does Iterable {
 
     method list() { self.Seq.list }
 
-    multi method reverse(--> Series) {
+    method reverse(--> Series) {
         my $series := Series;
         my $source := self;
         while my \node = $source() {
@@ -125,10 +125,13 @@ class Stream does Series {
         $!state.VAR =:= $!state ?? $!state !! ($!state := $!state());
     }
 
-    # Destructuring
     multi method Bool(--> Bool:D) { self.().Bool }
 
     multi method head() { self.().head }
+
+    method reverse(--> Stream:D) {
+        susp { self.().reverse };
+    }
 
     multi method skip(--> Series) { self.().skip }
 }
@@ -273,9 +276,11 @@ based on the C<.iterator>. Note that such lazy lists are I<not thread-safe>.
 
 =head2 method reverse
 
-    multi method reverse(--> Series)
+    method reverse(--> Series)
 
-Returns a series with the same values in reverse order.
+Returns a clone of the invocant with the same values in reverse order. This
+takes I<O>(n) time, but the actual reversal of a C<Stream> is delayed until
+properties of the reversed stream are accessed.
 
 =head2 method skip
 
