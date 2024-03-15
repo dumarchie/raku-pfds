@@ -104,7 +104,14 @@ method reverse
 
     method reverse(--> Series)
 
-Returns a clone of the invocant with the same values in reverse order. This takes *O*(n) time, but the actual reversal of a `Stream` is delayed until properties of the reversed stream are accessed.
+Returns a series with the same items in reverse order. This operation takes *O*(n) time, where n is the number of values in the series.
+
+method reversed
+---------------
+
+    method reversed(--> Series)
+
+Like `.reverse`, but suspends the operation until properties of the reversed series are accessed.
 
 method skip
 -----------

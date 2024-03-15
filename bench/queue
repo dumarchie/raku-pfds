@@ -1,0 +1,50 @@
+#!/usr/bin/env raku
+use v6.d;
+use lib 'lib';
+
+my $format = "%-30s%0.3fs";
+sub MAIN($impl = 'PFDS::BatchedQueue', Int() :$items = 2**20 - 2) {
+    require ::($impl);
+
+    my $queue = ::($impl);
+    my int $n = $items;
+    my $time  = benchmark {
+        $queue .= enqueue($_) for ^$n;
+    }, "Enqueue $n items", $n;
+
+    my int $m = ($n / 2).Int - 1;
+    my $time2 = 0;
+    for ^2 {
+        $time2 += benchmark {
+            $queue .= skip;
+        }, 'Dequeue 1 item';
+
+        $time2 += benchmark {
+            $queue .= skip($m);
+        }, "Dequeue $m items";
+    }
+    report "Dequeued $n items total", $time2, $n;
+    report "Total time", $time + $time2;
+}
+
+sub benchmark(&performance, $desc, $n = 0) {
+    my \start = now;
+    performance;
+
+    my \time = now - start;
+    report $desc, time, $n;
+
+    time;
+}
+
+sub report($desc, $time, $n = 0) {
+    state $format = '%-30s%0.3fs';
+    if $n {
+        my $opus = ($time / $n) * 1E6;
+        say sprintf "$format (%0.3fμs/op)", $desc, $time, $opus;
+    }
+    else {
+        say sprintf $format, $desc, $time;
+    }
+}
+

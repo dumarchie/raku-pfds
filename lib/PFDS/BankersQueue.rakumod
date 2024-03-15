@@ -21,7 +21,7 @@ class PFDS::BankersQueue does PFDS::Queue {
     sub queue(\F, \lenF, \R, \lenR) {
         lenR <= lenF
           ?? ::?CLASS.CREATE!SET-SELF(F, lenF, R, lenR)
-          !! ::?CLASS.CREATE!SET-SELF(F ++ R.reverse, lenF + lenR, stream, 0);
+          !! ::?CLASS.CREATE!SET-SELF(F ++ R.reversed, lenF + lenR, stream, 0);
     }
 
     # Public constructor

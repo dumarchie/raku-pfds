@@ -64,6 +64,10 @@ role Series does Iterable {
         $series;
     }
 
+    method reversed(--> Series) {
+        susp { self.().reverse };
+    }
+
     multi method skip(--> Series) { Series }
     multi method skip(Int() \n --> Series) {
         my $series := self;
@@ -128,10 +132,6 @@ class Stream does Series {
     multi method Bool(--> Bool:D) { self.().Bool }
 
     multi method head() { self.().head }
-
-    method reverse(--> Stream:D) {
-        susp { self.().reverse };
-    }
 
     multi method skip(--> Series) { self.().skip }
 }
@@ -278,9 +278,15 @@ based on the C<.iterator>. Note that such lazy lists are I<not thread-safe>.
 
     method reverse(--> Series)
 
-Returns a clone of the invocant with the same values in reverse order. This
-takes I<O>(n) time, but the actual reversal of a C<Stream> is delayed until
-properties of the reversed stream are accessed.
+Returns a series with the same items in reverse order. This operation takes
+I<O>(n) time, where n is the number of values in the series.
+
+=head2 method reversed
+
+    method reversed(--> Series)
+
+Like C<.reverse>, but suspends the operation until properties of the reversed
+series are accessed.
 
 =head2 method skip
 
