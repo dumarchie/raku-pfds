@@ -12,6 +12,7 @@
   "test-depends": [],
   "provides": {
     "PFDS": "lib/PFDS.rakumod",
+    "PFDS::BankersQueue": "lib/PFDS/BankersQueue.rakumod",
     "PFDS::BatchedQueue": "lib/PFDS/BatchedQueue.rakumod",
     "PFDS::Queue": "lib/PFDS/Queue.rakumod",
     "PFDS::Sequence": "lib/PFDS/Sequence.rakumod"
