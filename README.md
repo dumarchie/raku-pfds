@@ -44,14 +44,14 @@ Returns the decontainerized `values` as a `Stream`.
 infix ::
 --------
 
-    sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
+    multi sub infix:<::>(Mu \value, Series \t --> Series::Node:D)
 
 Constructs a `Series::Node` that links the decontainerized `value` to series `t`.
 
 infix ++
 --------
 
-    sub infix:<++>(Series \s, Series \t --> Stream:D)
+    multi sub infix:<++>(Series \s, Series \t --> Stream:D)
 
 Concatenates two series into a stream containing the values of `s` followed by the values of `t`.
 
