@@ -158,10 +158,13 @@ sub stream(+values --> Stream) is export {
     susp &flow, Lock.new;
 }
 
-sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
-  is export { t.insert(value) }
+proto sub infix:<::>(|) is assoc<right> is export {*}
+multi sub infix:<::>(Mu \value, Series \t --> Series::Node:D) {
+    t.insert(value);
+}
 
-sub infix:<++>(Series \s, Series \t --> Stream:D) is export {
+proto sub infix:<++>(|) is export {*}
+multi sub infix:<++>(Series \s, Series \t --> Stream:D) {
     susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
 }
 
@@ -216,14 +219,14 @@ Returns the decontainerized C<values> as a C<Stream>.
 
 =head2 infix ::
 
-    sub infix:<::>(Mu \value, Series \t --> Series::Node:D) is assoc<right>
+    multi sub infix:<::>(Mu \value, Series \t --> Series::Node:D)
 
 Constructs a C<Series::Node> that links the decontainerized C<value> to series
 C<t>.
 
 =head2 infix ++
 
-    sub infix:<++>(Series \s, Series \t --> Stream:D)
+    multi sub infix:<++>(Series \s, Series \t --> Stream:D)
 
 Concatenates two series into a stream containing the values of C<s> followed by
 the values of C<t>.
