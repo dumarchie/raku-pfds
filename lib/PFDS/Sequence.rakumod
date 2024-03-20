@@ -1,6 +1,9 @@
 use v6.d;
 
 role PFDS::Sequence does Iterable {
+    proto method new(|) {*}
+    multi method new(--> ::?CLASS:D) {...}
+
     multi method Bool(::?CLASS:D: --> Bool:D) {...}
 
     method Capture(::?CLASS:D: --> Capture:D) {
@@ -52,6 +55,13 @@ Role C<PFDS::Sequence> defines common methods to access, destructure and
 iterate over purely functional sequences.
 
 =head1 METHODS
+
+=head2 method new
+
+    multi method new(--> ::?CLASS:D)
+
+Method stub. All classes doing the C<PFDS::Sequence> role must provide an empty
+sequence constructor.
 
 =head2 method Bool
 

@@ -16,6 +16,13 @@ Role `PFDS::Sequence` defines common methods to access, destructure and iterate 
 METHODS
 =======
 
+method new
+----------
+
+    multi method new(--> ::?CLASS:D)
+
+Method stub. All classes doing the `PFDS::Sequence` role must provide an empty sequence constructor.
+
 method Bool
 -----------
 

@@ -23,13 +23,6 @@ Note that statements like `$queue .= enqueue($_)` update the `$queue` variable r
 METHODS
 =======
 
-method new
-----------
-
-    multi method new(--> ::?CLASS:D)
-
-Method stub. All classes doing the `PFDS::Queue` role must provide an empty queue constructor.
-
 method enqueue
 --------------
 

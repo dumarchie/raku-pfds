@@ -1,11 +1,7 @@
 use v6.d;
-
 use PFDS::Sequence;
 
 role PFDS::Queue does PFDS::Sequence {
-    proto method new(|) {*}
-    multi method new(--> ::?CLASS:D) {...}
-
     proto method enqueue(|) {*}
     multi method enqueue(::?CLASS:U: Mu \item --> ::?CLASS:D) {
         self.new.enqueue(item);
@@ -42,13 +38,6 @@ Note that statements like C<$queue .= enqueue($_)> update the C<$queue>
 variable rather than the C<PFDS::Queue> object stored in that variable.
 
 =head1 METHODS
-
-=head2 method new
-
-    multi method new(--> ::?CLASS:D)
-
-Method stub. All classes doing the C<PFDS::Queue> role must provide an empty
-queue constructor.
 
 =head2 method enqueue
 
