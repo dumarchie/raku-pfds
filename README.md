@@ -12,13 +12,13 @@ DESCRIPTION
 
     class Series::Node does Series {}
 
-    class Stream does Series {}
+    class Series::Header does Series {}
 
 Module `PFDS` provides one of the most fundamental purely functional data types: immutable, potentially lazy **linked lists**. Linked lists don't support the efficient positional access that may be expected from Raku lists, hence this library calls them `Series`.
 
-A proper series is represented by a `Series::Node` that links an immutable *value*, the `.head` of the series, to the series with the rest of the values. The last node of a series is linked to the empty series, the only `Series` which evaluates to `False` in Boolean context.
+A proper, evaluated series is represented by a `Series::Node` that links an immutable *value*, the `.head` of the series, to the series with the rest of the values. The last node of a series is linked to the empty series, the only `Series` which evaluates to `False` in Boolean context.
 
-A lazily evaluated, potentially infinite series is called a `Stream`. A stream may be called explicitly to obtain a `Series::Node` or the empty series. Calling a method like `.Bool`, `.head` or `.skip` implicitly reifies the head of the stream.
+A lazily evaluated, potentially infinite series is represented by a `Series::Header`. Such a *stream* may be called explicitly to obtain a `Series::Node` or the empty series. Calling a method like `.Bool`, `.head` or `.skip` implicitly reifies the head of the stream.
 
 EXPORTS
 =======
@@ -37,9 +37,9 @@ Returns the decontainerized `@values` as a `Series`.
 sub stream
 ----------
 
-    sub stream(+values --> Stream)
+    sub stream(+values --> Series::Header)
 
-Returns the decontainerized `values` as a `Stream`.
+Returns the decontainerized `values` as a `Series::Header`.
 
 infix ::
 --------
@@ -51,7 +51,7 @@ Constructs a `Series::Node` that links the decontainerized `value` to series `t`
 infix ++
 --------
 
-    multi sub infix:<++>(Series \s, Series \t --> Stream:D)
+    multi sub infix:<++>(Series \s, Series \t --> Series::Header:D)
 
 Concatenates two series into a stream containing the values of `s` followed by the values of `t`.
 

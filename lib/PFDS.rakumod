@@ -4,7 +4,7 @@ unit module PFDS;
 # To be defined in the respective classes:
 my &cons; # protected Series::Node constructor
 my &prep; # protected Series constructor
-my &susp; # protected Stream constructor
+my &susp; # protected Series::Header constructor
 
 role Series does Iterable {
     # If forced, return the type object representing the empty series
@@ -103,7 +103,7 @@ class Series::Node does Series {
     multi method skip(--> Series) { $!next  }
 }
 
-class Stream does Series {
+class Series::Header does Series {
     has $!state;
     method !SET-SELF(\todo) {
         $!state := todo;
@@ -149,7 +149,7 @@ multi series(**@values is raw --> Series) {
     prep(Series, @values);
 }
 
-sub stream(+values --> Stream) is export {
+sub stream(+values --> Series::Header) is export {
     my \iterator = values.iterator;
     my &flow = {
         my \value = iterator.pull-one;
@@ -164,7 +164,7 @@ multi sub infix:<::>(Mu \value, Series \t --> Series::Node:D) {
 }
 
 proto sub infix:<++>(|) is export {*}
-multi sub infix:<++>(Series \s, Series \t --> Stream:D) {
+multi sub infix:<++>(Series \s, Series \t --> Series::Header:D) {
     susp { (my \node := s.()) ?? cons(node.head, node.skip ++ t) !! t.() };
 }
 
@@ -182,22 +182,22 @@ PFDS - Purely functional data structures
 
     class Series::Node does Series {}
 
-    class Stream does Series {}
+    class Series::Header does Series {}
 
 Module C<PFDS> provides one of the most fundamental purely functional data
 types: immutable, potentially lazy B<linked lists>. Linked lists don't support
 the efficient positional access that may be expected from Raku lists, hence
 this library calls them C<Series>.
 
-A proper series is represented by a C<Series::Node> that links an immutable
-I<value>, the C<.head> of the series, to the series with the rest of the
-values. The last node of a series is linked to the empty series, the only
+A proper, evaluated series is represented by a C<Series::Node> that links an
+immutable I<value>, the C<.head> of the series, to the series with the rest of
+the values. The last node of a series is linked to the empty series, the only
 C<Series> which evaluates to C<False> in Boolean context.
 
-A lazily evaluated, potentially infinite series is called a C<Stream>. A stream
-may be called explicitly to obtain a C<Series::Node> or the empty series.
-Calling a method like C<.Bool>, C<.head> or C<.skip> implicitly reifies the
-head of the stream.
+A lazily evaluated, potentially infinite series is represented by a
+C<Series::Header>. Such a I<stream> may be called explicitly to obtain a
+C<Series::Node> or the empty series. Calling a method like C<.Bool>, C<.head>
+or C<.skip> implicitly reifies the head of the stream.
 
 =head1 EXPORTS
 
@@ -213,9 +213,9 @@ Returns the decontainerized C<@values> as a C<Series>.
 
 =head2 sub stream
 
-    sub stream(+values --> Stream)
+    sub stream(+values --> Series::Header)
 
-Returns the decontainerized C<values> as a C<Stream>.
+Returns the decontainerized C<values> as a C<Series::Header>.
 
 =head2 infix ::
 
@@ -226,7 +226,7 @@ C<t>.
 
 =head2 infix ++
 
-    multi sub infix:<++>(Series \s, Series \t --> Stream:D)
+    multi sub infix:<++>(Series \s, Series \t --> Series::Header:D)
 
 Concatenates two series into a stream containing the values of C<s> followed by
 the values of C<t>.

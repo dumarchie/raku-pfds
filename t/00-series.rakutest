@@ -48,16 +48,16 @@ subtest 'series', {
 subtest 'infix ::', {
     subtest '$item :: values', {
         my $item = my \value = Mu.new;
-        my \values = (PFDS::Series, PFDS::Series::Node, PFDS::Stream).pick;
+        my \values = ::('PFDS::Series' ~ ('', '::Node', '::Header').pick);
         $_ := $item :: values;
         isa-ok $_, PFDS::Series::Node, 'the result is a PFDS::Series::Node';
 
         $item = 0;
         cmp-ok .head, '=:=', value,
-                '.head returns the value of the left operand at node construction time';
+          '.head returns the value of the left operand at construction time';
 
         cmp-ok .skip, '=:=', series(),
-                '.skip returns the empty series if the right operand was not defined';
+          '.skip returns the empty series if the right operand is not defined';
     }
 
     cmp-ok (1 :: 2 :: series), 'eqv', series(1, 2),
@@ -92,13 +92,16 @@ my class Producer is Range  {
 subtest 'stream', {
     my \values = Producer.new(0, 3);
     $_ := stream(values);
-    isa-ok $_, PFDS::Stream, "stream(values) returns a PFDS::Stream";
-    is values.produced, 0, 'no values were evaluated';
+    isa-ok $_, PFDS::Series::Header,
+      "stream(values) returns a PFDS::Series::Header";
 
+    is values.produced, 0, 'no values were evaluated';
     cmp-ok .Bool, '=:=', True, '.Bool returns True';
     cmp-ok .head, '=:=', 0, '.head returns the first value';
     subtest '.skip', {
-        isa-ok $_, PFDS::Stream, "the result is a PFDS::Stream";
+        isa-ok $_, PFDS::Series::Header,
+          "the result is a PFDS::Series::Header";
+
         is values.produced, 1, 'only the first of the values was evaluated';
         cmp-ok $_, 'eqv', stream(1..3),
           'the second stream evaluates the rest of the values on demand';
@@ -107,8 +110,8 @@ subtest 'stream', {
 
 subtest 'infix ++', {
     $_ := series(1) ++ stream(2, 3);
-    isa-ok $_, PFDS::Stream,
-      "series(1) ++ stream(2, 3) returns a PFDS::Stream";
+    isa-ok $_, PFDS::Series::Header,
+      "series(1) ++ stream(2, 3) returns a PFDS::Series::Header";
 
     cmp-ok .Bool, '=:=', True, '.Bool returns True';
     cmp-ok .head, '=:=', 1, '.head returns 1';
