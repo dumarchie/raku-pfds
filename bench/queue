@@ -20,7 +20,7 @@ sub MAIN($impl = 'PFDS::BatchedQueue', Int() :$items = 2**20 - 2) {
         }, 'Dequeue 1 item';
 
         $time2 += benchmark {
-            $queue .= skip($m);
+            $queue .= skip for ^$m;
         }, "Dequeue $m items";
     }
     report "Dequeued $n items total", $time2, $n;
