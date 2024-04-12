@@ -44,7 +44,7 @@ Returns the item at the front of the queue.
 method skip
 -----------
 
-    multi method skip(::?CLASS:D: --> ::?CLASS:D)
+    multi method skip(::?CLASS:D:)
 
 Returns a queue with the remaining items after discarding the item at the front.
 
