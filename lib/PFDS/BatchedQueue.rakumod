@@ -33,7 +33,7 @@ class PFDS::BatchedQueue does PFDS::Queue {
 
     multi method head(::?CLASS:D:) { $!front.head }
 
-    multi method skip(::?CLASS:D: --> ::?CLASS:D) {
+    multi method skip(::?CLASS:D:) {
         queue $!front.skip, $!rear;
     }
 }
@@ -81,7 +81,7 @@ Returns the item at the front of the queue.
 
 =head2 method skip
 
-    multi method skip(::?CLASS:D: --> ::?CLASS:D)
+    multi method skip(::?CLASS:D:)
 
 Returns a queue with the remaining items after discarding the item at the
 front.

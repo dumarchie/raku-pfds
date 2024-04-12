@@ -30,11 +30,18 @@ role PFDS::Sequence does Iterable {
         self.Seq.list;
     }
 
-    multi method skip(::?CLASS:D: --> ::?CLASS:D) {...}
-    multi method skip(::?CLASS:D: Int() \n --> ::?CLASS:D) {
+    method next(::?CLASS:D: --> ::?ROLE:D) {
+        self.skip;
+    }
+
+    multi method skip(::?CLASS:D:) is raw {...}
+    multi method skip(::?CLASS:D: Int() \n) is raw {
         my int $n = n;
         my $self := self;
-        $self := $self.skip while $n-- > 0;
+        while --$n > 0 {
+            $self := $self.next or $n = 0;
+        }
+        $self := $self.skip if $n == 0;
         $self;
     }
 }
@@ -108,13 +115,23 @@ inherently mutable, so they're I<not thread-safe>.
 Returns a lazy C<List> based on the C<.iterator>. Note that lists are I<not
 thread-safe> until fully reified.
 
+=head2 method next
+
+    method next(::?CLASS:D: --> ::?ROLE:D)
+
+Eagerly evaluates the result of C<.skip>. Classes doing the C<PFDS::Sequence>
+role may provide an implementation that bypasses suspension altogether.
+
 =head2 method skip
 
-    multi method skip(::?CLASS:D: --> ::?CLASS:D)
-    multi method skip(::?CLASS:D: Int() \n --> ::?CLASS:D)
+    multi method skip(::?CLASS:D:) is raw
+    multi method skip(::?CLASS:D: Int() \n) is raw
 
 The first candidate is a method stub. Classes doing the C<PFDS::Sequence> role
 should return the sequence without the first item, or return the empty sequence
 self. The second candidate returns the sequence without the first C<n> items.
+
+Note that this method may return a I<suspended> sequence. Reification of the
+head may be delayed by I<binding>, rather than assigning the result.
 
 =end pod
